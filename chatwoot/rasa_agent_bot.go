@@ -16,21 +16,36 @@ import (
 )
 
 type ChatwootRasaAgentBot struct {
-	ChatwootClient chatwootclient.ChatwootClient
-	RasaURL        string
-	RasaAPIKey     string
-	ErrorMessage   string
-	InboxID        int
+	ChatwootClient                chatwootclient.ChatwootClient
+	WebWidgetTriggersStartMessage bool
+	RasaURL                       string
+	RasaAPIKey                    string
+	ErrorMessage                  string
+	InboxID                       int
 }
 
 func NewChatwootRasaAgentBot(chatwootClient chatwootclient.ChatwootClient, inboxID int, rasaUrl string, rasaAPIKey string, errorMessage string) ChatwootRasaAgentBot {
 
 	return ChatwootRasaAgentBot{
-		ChatwootClient: chatwootClient,
-		InboxID:        inboxID,
-		RasaURL:        rasaUrl,
-		RasaAPIKey:     rasaAPIKey,
-		ErrorMessage:   errorMessage,
+		ChatwootClient:                chatwootClient,
+		WebWidgetTriggersStartMessage: false,
+		InboxID:                       inboxID,
+		RasaURL:                       rasaUrl,
+		RasaAPIKey:                    rasaAPIKey,
+		ErrorMessage:                  errorMessage,
+	}
+
+}
+
+func NewChatwootRasaAgentBotWithWebWidgetStart(chatwootClient chatwootclient.ChatwootClient, inboxID int, rasaUrl string, rasaAPIKey string, errorMessage string) ChatwootRasaAgentBot {
+
+	return ChatwootRasaAgentBot{
+		ChatwootClient:                chatwootClient,
+		WebWidgetTriggersStartMessage: true,
+		InboxID:                       inboxID,
+		RasaURL:                       rasaUrl,
+		RasaAPIKey:                    rasaAPIKey,
+		ErrorMessage:                  errorMessage,
 	}
 
 }
@@ -48,7 +63,7 @@ func (agentBot *ChatwootRasaAgentBot) HandleMessages(c *gin.Context) {
 	utils.Logger.Info("Received the request: ", zap.Any("request", request))
 
 	// The Bot sends the first message
-	if request.Event == "webwidget_triggered" {
+	if request.Event == "webwidget_triggered" && agentBot.WebWidgetTriggersStartMessage {
 
 		utils.LoggerSugar.Infof("Source Id %v", request.SourceID)
 
